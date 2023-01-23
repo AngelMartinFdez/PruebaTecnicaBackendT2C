@@ -1,1 +1,2 @@
-# PruebaTecnicaBackendT2C
+# PruebaTecnicaBackend
+Iniciar -> uvicorn main:app --reload
