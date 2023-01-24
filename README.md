@@ -11,4 +11,6 @@ Martes 24
 - Libreria de base de datos usada MongDB (NoSQL)
 - Configuración atlas
 - Configuracion del fichero .env 
-- Obtener lista de coches 
+- Obtener lista de coches + plantilla html para mostrarlo
+- Obtener lista de cohes por fechas + plantilla html para mostratlo 
+- Empezando actualizar un coche

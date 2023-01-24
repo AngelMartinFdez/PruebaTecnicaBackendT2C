@@ -1,16 +1,22 @@
-from fastapi import FastAPI
+import re
+
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from terminusdb_client import WOQLClient
 from pymongo import MongoClient
 from dotenv import dotenv_values
+from fastapi.templating import Jinja2Templates
 import datetime
 import pymongo
+from isodate import parse_datetime
+
 
 app = FastAPI()
 config = dotenv_values(".env")
 client = MongoClient(config["ATLAS_URI"])
 db = client["mongodb"]
 collection_coches = db["coches"]
+templates = Jinja2Templates(directory="templates/")
 
 
 
@@ -47,25 +53,47 @@ async def startup():
 
 
 @app.get('/api/cars')
-async def get_cars():
-    return db["coches"].find()
+async def get_cars(request : Request):
+    coches = list(collection_coches.find())
+    return templates.TemplateResponse('cars.html', context={"request": request,"coches": coches})
 
 
 # Lista de los coches BUSCAR POR FECHA DE INGRESO
 
 
 @app.get('/api/cars/{fecha_ingreso}')
-async def get_cars_by_fecha_ingreso(fecha_ingreso):
-    return {"cars": "Lista de los cochesPOR FECHA DE INGRESO"}
+async def get_cars_by_fecha_ingreso(request : Request, fecha_ingreso):
+    digits = re.findall(r'\d+',str(fecha_ingreso))
+    y = int(digits[0])
+    m = int(digits[1])
+    d = int(digits[2])
+    coches_fecha_ingreso = list(collection_coches.find({'fecha_ingreso' : datetime.datetime(y,m,d)}))
 
+    return templates.TemplateResponse('cars_date.html', context={"request": request,"coches": coches_fecha_ingreso})
+
+
+# Ver todos los detalles de im coche incluyendo su concesionario
+
+
+@app.get('/api/coches_concesionario')
+async def get_coches_concesionario(request : Request):
+    return {"coches" : "concesionario"}
 
 # Actualizar precio de venta final -> Pasa a vendido Coche vendido no puede ser modificado
 
 # para actualizar
 
 
-@app.put('/api/update')
-async def actualizar_precio_de_venta_final():
+@app.put('/api/update/{matricula}/{n_precio}')
+async def actualizar_precio_de_venta_final(request : Request , matricula, n_precio):
+    coche = collection_coches.find_one({'matricula': matricula})
+    if not coche.get('vendido'):
+        print ("No vendido, cambio de precio de venta")
+        filtro = {'matricula', matricula}
+        update = {"$set":{"precio": n_precio , "vendido": True}}
+        collection_coches.update_one(filtro, update)
+    else:
+        print("Coche vendido, no se puede cambiar el precio de venta final")
     return {"precio_de_venta_final": "Actualizacion de precio de venta final"}
 
 
