@@ -5,7 +5,6 @@ from pymongo import MongoClient
 from dotenv import dotenv_values
 import datetime
 import pymongo
-from peewee import *
 
 app = FastAPI()
 config = dotenv_values(".env")
@@ -41,7 +40,7 @@ class Concesionario(BaseModel):
 async def startup():
     date = datetime.datetime(2022,2,3)
     coche1 = Coche(marca='ford', coste=12000, fecha_ingreso=date,vendido=False, matricula='6895LPS', precio=17000)
-    collection_coches.insert_one(dict(coche1))
+    #collection_coches.insert_one(dict(coche1))
 
 
 # Lista de los coches GENERAL
@@ -49,7 +48,7 @@ async def startup():
 
 @app.get('/api/cars')
 async def get_cars():
-    return collection_coches.find_one({'marca':"ford"})
+    return db["coches"].find()
 
 
 # Lista de los coches BUSCAR POR FECHA DE INGRESO
