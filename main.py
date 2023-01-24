@@ -81,25 +81,29 @@ async def get_coches_concesionario(request : Request):
 
 # Actualizar precio de venta final -> Pasa a vendido Coche vendido no puede ser modificado
 
-# para actualizar
+# para actualizars
 
 
-@app.put('/api/update/{matricula}/{n_precio}')
-async def actualizar_precio_de_venta_final(request : Request , matricula, n_precio):
+@app.route('/api/update' , methods=['POST','GET'])
+async def actualizar_precio_de_venta_final(request : Request):
+    n_precio=33000
+    matricula = "6895LPS"
+    print("Matricula" , matricula , "precio" , n_precio)
     coche = collection_coches.find_one({'matricula': matricula})
     if not coche.get('vendido'):
         print ("No vendido, cambio de precio de venta")
-        filtro = {'matricula', matricula}
+        filtro = {'matricula' : matricula}
         update = {"$set":{"precio": n_precio , "vendido": True}}
         collection_coches.update_one(filtro, update)
     else:
         print("Coche vendido, no se puede cambiar el precio de venta final")
-    return {"precio_de_venta_final": "Actualizacion de precio de venta final"}
+    coche_actualizado = collection_coches.find_one({'matricula': matricula})
+    return templates.TemplateResponse('update_car.html', context={'request':request, "coche" : coche_actualizado})
 
 
 # Dar de baja a un coche NO vendido
 
 
-@app.delete('/api/delete')
-async def dar_de_baja_a_un_coche():
+@app.delete('/api/delete/{matricula}')
+async def dar_de_baja_a_un_coche(matricula):
     return {"dar_de_baja_a_un_coche": "Dar de baja a un coche"}
