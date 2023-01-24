@@ -1,8 +1,19 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from terminusdb_client import WOQLClient
+from pymongo import MongoClient
+from dotenv import dotenv_values
 import datetime
+import pymongo
+from peewee import *
 
 app = FastAPI()
+config = dotenv_values(".env")
+client = MongoClient(config["ATLAS_URI"])
+db = client["mongodb"]
+collection_coches = db["coches"]
+
+
 
 
 # Class
@@ -11,7 +22,7 @@ app = FastAPI()
 class Coche(BaseModel):
     marca: str
     coste: float
-    fecha_ingreso: datetime
+    fecha_ingreso: datetime.datetime
     vendido: bool
     matricula: str
     precio: float
@@ -21,12 +32,24 @@ class Concesionario(BaseModel):
     Direccion: str
 
 
+
+# Cuando la base de datos se inicia crear las colecciones
+# Insertar varios coches prueba
+
+
+@app.on_event("startup")
+async def startup():
+    date = datetime.datetime(2022,2,3)
+    coche1 = Coche(marca='ford', coste=12000, fecha_ingreso=date,vendido=False, matricula='6895LPS', precio=17000)
+    collection_coches.insert_one(dict(coche1))
+
+
 # Lista de los coches GENERAL
 
 
 @app.get('/api/cars')
 async def get_cars():
-    return {"cars": "Lista de los coches GENERAL "}
+    return collection_coches.find_one({'marca':"ford"})
 
 
 # Lista de los coches BUSCAR POR FECHA DE INGRESO
