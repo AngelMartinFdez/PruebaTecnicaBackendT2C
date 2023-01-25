@@ -15,3 +15,8 @@ Martes 24
 - Obtener lista de cohes por fechas + plantilla html para mostratlo 
 - Empezando actualizar un coche, y sus plantillas 
 - Empezar a eleminar un coche y sus plantillas 
+
+
+Miércoles 25 
+- Dar de baja un coche (Borrar) -> curl -X DELETE "http://localhost:8000/api/delete/{matriucla}"
+- Añadido codigo de estado para borrar coches 
