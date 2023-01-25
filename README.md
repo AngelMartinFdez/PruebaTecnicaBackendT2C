@@ -13,4 +13,5 @@ Martes 24
 - Configuracion del fichero .env 
 - Obtener lista de coches + plantilla html para mostrarlo
 - Obtener lista de cohes por fechas + plantilla html para mostratlo 
-- Empezando actualizar un coche
+- Empezando actualizar un coche, y sus plantillas 
+- Empezar a eleminar un coche y sus plantillas 

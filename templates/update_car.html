@@ -5,7 +5,14 @@
     <title>Coche actualizado</title>
 </head>
 <body>
-<h1>Coche actualizado</h1>
-<h2>{{ coche }}</h2>
+ <form action="/api/update" method="post">
+    <label for="matricula">Matricula:</label>
+    <input type="text" id="matricula" name="matricula">
+     <br>
+     <label for="n_precio">Precio:</label>
+     <input type="number" id="n_precio" name="n_precio">
+     <br>
+    <input type="submit" value="Update">
+  </form>
 </body>
 </html>

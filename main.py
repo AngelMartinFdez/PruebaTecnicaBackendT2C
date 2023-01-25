@@ -1,6 +1,6 @@
 import re
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from pydantic import BaseModel
 from terminusdb_client import WOQLClient
 from pymongo import MongoClient
@@ -82,12 +82,15 @@ async def get_coches_concesionario(request : Request):
 # Actualizar precio de venta final -> Pasa a vendido Coche vendido no puede ser modificado
 
 # para actualizars
-
-
-@app.route('/api/update' , methods=['POST','GET'])
+@app.get('/api/update')
 async def actualizar_precio_de_venta_final(request : Request):
-    n_precio=33000
-    matricula = "6895LPS"
+    return templates.TemplateResponse('update_car.html', context={'request':request})
+
+
+@app.post('/api/update' )
+async def actualizar_precio_de_venta_final(request : Request,
+                                            matricula : str = Form(...),
+                                           n_precio : float = Form(...),):
     print("Matricula" , matricula , "precio" , n_precio)
     coche = collection_coches.find_one({'matricula': matricula})
     if not coche.get('vendido'):
@@ -98,12 +101,34 @@ async def actualizar_precio_de_venta_final(request : Request):
     else:
         print("Coche vendido, no se puede cambiar el precio de venta final")
     coche_actualizado = collection_coches.find_one({'matricula': matricula})
-    return templates.TemplateResponse('update_car.html', context={'request':request, "coche" : coche_actualizado})
+    return "coche actualizado"
+    # return templates.TemplateResponse('update_car_successfully.html', context={'request': request, 'matricula': coche_actualizado.get('matricula')})
 
 
 # Dar de baja a un coche NO vendido
 
 
-@app.delete('/api/delete/{matricula}')
-async def dar_de_baja_a_un_coche(matricula):
-    return {"dar_de_baja_a_un_coche": "Dar de baja a un coche"}
+@app.get('/api/delete')
+async def delete(request: Request):
+    return templates.TemplateResponse('delete_car.html', context={'request': request})
+
+
+@app.post('/api/delete')
+async def dar_de_baja_a_un_coche(request: Request,
+        matricula: str = Form(...)
+    ):
+    coche = collection_coches.find_one({'matricula': matricula})
+    if not coche.get('vendido'):
+        print("No vendido, dar de baja a un coche")
+        filtro = {'matricula': matricula}
+        collection_coches.delete_one(filtro)
+    else:
+        print("Coche vendido, no se puede dar de baja")
+    return templates.TemplateResponse('delete_car_successfully.html', context={'request': request, "coche": matricula})
+
+
+
+
+
+
+
