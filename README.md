@@ -20,3 +20,6 @@ Martes 24
 Miércoles 25 
 - Dar de baja un coche (Borrar) -> curl -X DELETE "http://localhost:8000/api/delete/{matriucla}"
 - Añadido codigo de estado para borrar coches 
+- Actualizar el precio de los coches -> curl -X POST "http://localhost:8000/api/update/{matricula}/{precio}"
+- Códigos de estado para atualizar el precio del coche 
+- Comprobar matriuclas y precios 

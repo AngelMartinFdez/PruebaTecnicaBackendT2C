@@ -1,5 +1,5 @@
 import re
-from fastapi import FastAPI, Request, Form, Response,status
+from fastapi import FastAPI, Request, Form, Response, status
 from pydantic import BaseModel
 from terminusdb_client import WOQLClient
 from pymongo import MongoClient
@@ -42,7 +42,7 @@ class Concesionario(BaseModel):
 async def startup():
     date = datetime.datetime(2022, 2, 3)
     coche1 = Coche(marca='ford', coste=12000, fecha_ingreso=date, vendido=False, matricula='6895LPS', precio=17000)
-    collection_coches.insert_one(dict(coche1))
+    # collection_coches.insert_one(dict(coche1))
 
 
 # Lista de los coches GENERAL
@@ -78,42 +78,40 @@ async def get_coches_concesionario(request: Request):
 
 # Actualizar precio de venta final -> Pasa a vendido Coche vendido no puede ser modificado
 
-# para actualizars
-@app.get('/api/update')
-async def actualizar_precio_de_venta_final(request: Request):
-    return templates.TemplateResponse('update_car.html', context={'request': request})
 
 
-@app.post('/api/update')
-async def actualizar_precio_de_venta_final(request: Request,
-                                           matricula: str = Form(...),
-                                           n_precio: float = Form(...), ):
-    print("Matricula", matricula, "precio", n_precio)
+@app.post('/api/update/{matricula}/{n_precio}')
+async def actualizar_precio_de_venta_final(response: Response,
+                                           matricula: str,
+                                           n_precio: float
+                                           ):
+    if not comprobar_matricula(matricula) or n_precio > 1:
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        return response.status_code
+
     coche = collection_coches.find_one({'matricula': matricula})
     if not coche.get('vendido'):
-        print("No vendido, cambio de precio de venta")
         filtro = {'matricula': matricula}
         update = {"$set": {"precio": n_precio, "vendido": True}}
         collection_coches.update_one(filtro, update)
+        response.status_code = status.HTTP_201_CREATED
+        return response.status_code
     else:
-        print("Coche vendido, no se puede cambiar el precio de venta final")
-    coche_actualizado = collection_coches.find_one({'matricula': matricula})
-    return "coche actualizado"
-    # return templates.TemplateResponse('update_car_successfully.html', context={'request': request, 'matricula': coche_actualizado.get('matricula')})
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return response.status_code
 
 
 # Dar de baja a un coche NO vendido
-
-
-@app.get('/api/delete')
-async def delete(request: Request):
-    return templates.TemplateResponse('delete_car.html', context={'request': request})
 
 
 @app.delete('/api/delete/{matricula}')
 async def dar_de_baja_a_un_coche(response: Response,
                                  matricula: str
                                  ):
+    if not comprobar_matricula(matricula) :
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        return response.status_code
+
     coche = collection_coches.find_one({'matricula': matricula})
     if coche is None:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -127,3 +125,9 @@ async def dar_de_baja_a_un_coche(response: Response,
         response.status_code = status.HTTP_409_CONFLICT
         return response.status_code
 
+
+# FUNCIONES
+def comprobar_matricula(matricula: str):
+    numeros = sum(c.isdigit() for c in matricula)
+    letras = sum(c.isalpha() for c in matricula)
+    return matricula.__len__() == 7 and numeros == 4 and letras == 3
