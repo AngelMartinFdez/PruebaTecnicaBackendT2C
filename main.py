@@ -1,11 +1,12 @@
+from bson import ObjectId
 from fastapi import FastAPI
 from pymongo import MongoClient
 from dotenv import dotenv_values
 from fastapi import Response, status, HTTPException
-import datetime
 from isodate import parse_datetime
 from datetime import datetime
 from pydantic import BaseModel
+import datetime
 
 app = FastAPI()
 config = dotenv_values(".env")
@@ -18,23 +19,26 @@ collection_concesionarios = db["concesionarios"]
 class Coche(BaseModel):
     marca: str
     coste: float
-    fecha_ingreso: datetime
+    fecha_ingreso: datetime.datetime
     vendido: bool
     matricula: str
     precio: float
+    concesionario_id: str
 
 
 class Concesionario(BaseModel):
     nombre: str
     direccion: str
-    coches: list
 
 
 @app.on_event("startup")
 async def startup():
-    date = datetime(2022, 2, 3)
-    coche1 = Coche(marca='ford', coste=12000, fecha_ingreso=date, vendido=False, matricula='6895LPS', precio=17000)
-    concesionario = Concesionario(nombre='concesionario', direccion='calle falsa', coches=[dict(coche1)])
+    date = datetime.datetime(2022, 2, 3)
+    concesionario = Concesionario(nombre='Concesionario Teslas', direccion='calle falsa teslas')
+    concesionario_id = collection_concesionarios.insert_one(dict(concesionario)).inserted_id
+    coche1 = Coche(marca='Tesla', coste=22000, fecha_ingreso=datetime.datetime.now(), vendido=False,
+                   matricula='1234BCD',
+                   precio=37000, concesionario_id=str(concesionario_id))
     # collection_concesionarios.insert_one(dict(concesionario))
     # collection_coches.insert_one(dict(coche1))
 
@@ -54,18 +58,8 @@ async def get_cars_by_fecha_ingreso(fecha_ingreso):
 
 
 @app.get('/api/coches_concesionario/{matricula}')
-async def get_coches_concesionario(response: Response,
-                                   matricula: str):
-    if not comprobar_matricula(matricula):
-        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-        return response.status_code
-
-    filtro = {'matricula': matricula}
-    print("ey")
-    coche = collection_concesionarios.find_one(filtro)
-    print(coche)
-
-    return {"coches": "concesionario"}
+async def get_coches_concesionario_enpoint(matricula: str):
+    return await get_coches_concesionario(matricula)
 
 
 @app.post('/api/update/{matricula}/{n_precio}')
@@ -99,10 +93,17 @@ async def dar_de_baja_a_un_coche(matricula: str):
                             detail="Coche vendido, no se puede dar de baja")
 
 
-def comprobar_matricula(matricula: str):
-    numeros = sum(c.isdigit() for c in matricula)
-    letras = sum(c.isalpha() for c in matricula)
-    return len(matricula) == 7 and numeros == 4 and letras == 3
+async def get_coches_concesionario(matricula: str):
+    if not comprobar_matricula(matricula):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="Matricula incorrecta")
+
+    filtro_coche = {'matricula': matricula}
+    coche = collection_coches.find_one(filtro_coche)
+    filtro_concesionario = {'_id': ObjectId(coche['concesionario_id'])}
+    concesionario = collection_concesionarios.find_one(filtro_concesionario)
+
+    return crear_concesionario(concesionario), crear_coche(coche)
 
 
 async def actualizar_precio_venta_final(matricula: str, n_precio: int):
@@ -133,3 +134,17 @@ def crear_coche(coche):
         "precio": coche["precio"]
     }
     return nuevo_coche
+
+
+def crear_concesionario(concesionario):
+    nuevo_concesionario = {
+        "nombre": concesionario["nombre"],
+        "direccion": concesionario["direccion"]
+    }
+    return nuevo_concesionario
+
+
+def comprobar_matricula(matricula: str):
+    numeros = sum(c.isdigit() for c in matricula)
+    letras = sum(c.isalpha() for c in matricula)
+    return len(matricula) == 7 and numeros == 4 and letras == 3

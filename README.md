@@ -25,7 +25,7 @@ Miércoles 25
 - Comprobar listar coches -> curl GET "http://localhost:8000/api/cars"
 - Refactorizar el código y hacerlo más legible 
 
-Jueves 26 POR HACER
+Jueves 26 
 - Relación One to Many concesionario 
-- Base de datos ram 
-- Revisar enunciado 
+- Base de datos ram POR HACER
+- Revisar enunciado POR HACER
