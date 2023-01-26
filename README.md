@@ -11,15 +11,21 @@ Martes 24
 - Libreria de base de datos usada MongDB (NoSQL)
 - Configuración atlas
 - Configuracion del fichero .env 
-- Obtener lista de coches + plantilla html para mostrarlo
-- Obtener lista de cohes por fechas + plantilla html para mostratlo 
-- Empezando actualizar un coche, y sus plantillas 
-- Empezar a eleminar un coche y sus plantillas 
-
+- Obtener lista de coches
+- Obtener lista de cohes por fechas 
+- Empezando actualizar un coche
+- Empezar a eliminar un coche
 
 Miércoles 25 
 - Dar de baja un coche (Borrar) -> curl -X DELETE "http://localhost:8000/api/delete/{matriucla}"
 - Añadido codigo de estado para borrar coches 
 - Actualizar el precio de los coches -> curl -X POST "http://localhost:8000/api/update/{matricula}/{precio}"
 - Códigos de estado para atualizar el precio del coche 
-- Comprobar matriuclas y precios 
+- Comprobar matriculas y precios 
+- Comprobar listar coches -> curl GET "http://localhost:8000/api/cars"
+- Refactorizar el código y hacerlo más legible 
+
+Jueves 26 POR HACER
+- Relación One to Many concesionario 
+- Base de datos ram 
+- Revisar enunciado 
