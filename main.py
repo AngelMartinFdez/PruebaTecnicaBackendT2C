@@ -1,7 +1,6 @@
 from bson import ObjectId
 from fastapi import FastAPI
 from pymongo import MongoClient
-from dotenv import dotenv_values
 from fastapi import status, HTTPException
 from isodate import parse_datetime
 from datetime import datetime
