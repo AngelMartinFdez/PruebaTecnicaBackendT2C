@@ -7,7 +7,6 @@ Lunes 23
 - Creacion de mapeo solo por encima sin la logica
 
 Martes 24
-- Base de datos en RAM  usada TerminusDB https://terminusdb.com/docs/
 - Libreria de base de datos usada MongDB (NoSQL)
 - Configuración atlas
 - Configuracion del fichero .env 
@@ -19,13 +18,17 @@ Martes 24
 Miércoles 25 
 - Dar de baja un coche (Borrar) -> curl -X DELETE "http://localhost:8000/api/delete/{matriucla}"
 - Añadido codigo de estado para borrar coches 
-- Actualizar el precio de los coches -> curl -X POST "http://localhost:8000/api/update/{matricula}/{precio}"
+- Actualizar el precio de los coches -> curl -X PUT "http://localhost:8000/api/update/{matricula}/{precio}"
 - Códigos de estado para atualizar el precio del coche 
 - Comprobar matriculas y precios 
-- Comprobar listar coches -> curl GET "http://localhost:8000/api/cars"
+- Comprobar listar coches -> curl  "http://localhost:8000/api/cars"
 - Refactorizar el código y hacerlo más legible 
 
 Jueves 26 
 - Relación One to Many concesionario 
-- Base de datos ram POR HACER
-- Revisar enunciado POR HACER
+- Revisar enunciado 
+
+Domingo 29 
+- Base de datos conectar a docker POR HACER
+- Refactorizar último código (startup e insertar datos) 
+Para conectar el docker docker run -d -p 27017:27017 --name mongodb mongo
